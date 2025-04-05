@@ -16,22 +16,6 @@ export const Button: React.FC<ButtonProps> = ({children, className = "", ...prop
   );
 };
 
-// export const Button: React.FC<{ children: React.ReactNode, onClick? : () => void, type? :  }> = ({
-//   children,
-//   onClick,
-//   type
-// }) => {
-//   return (
-//     <button
-//       type={type}
-//       onClick={onClick}
-//       className="cursor-pointer bg-accent hover:bg-accent/90 text-text px-8 py-4 rounded-3xl font-manrope text-sm transition-all hover:scale-105"
-//     >
-//       {children}
-//     </button>
-//   );
-// };
-
 export const Line = () => {
   return <div className="h-1/5 w-1 border-2 inline mr-4 ml-4"></div>;
 };

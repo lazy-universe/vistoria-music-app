@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/style";
 
-const Profile = () => {
+type profileProps = {
+  dashBoard?: boolean | undefined;
+  closeDashBoard?: () => void;
+}
+
+const Profile = ({dashBoard, closeDashBoard} : profileProps) => {
   const [newUser, setNewUser] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [username, setUsername] = useState<string>("music is love");
-  const [preview, setPreview] = useState<string>("/avatar/avatar-1.jpg");
+  const [preview, setPreview] = useState<string>("");
   const navigate = useNavigate();
+
+  const handleXbutton = () => {
+    if(closeDashBoard) closeDashBoard();
+    else navigate("/dashboard");
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,7 +79,7 @@ const Profile = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || data.error || "Failed to generate upload URL");        
         
-        avatarUrl = data.publicUrl;
+        avatarUrl = `${data.publicUrl}?t=${new Date().getTime()}`; // Busts cache 
       }
       
       // Step 3: Save updated profile info to Firestore (or Supabase DB)
@@ -112,11 +122,15 @@ const Profile = () => {
     if(userName) setUsername(userName);
 
     const userProfile = localStorage.getItem("avatar");    
-    if(userProfile) setPreview(userProfile);
+    if (userProfile) setPreview(`${userProfile}?t=${new Date().getTime()}`);
+    else setPreview("/avatar/avatar-1.jpg"); 
+
+    // const userProfile = localStorage.getItem("avatar");    
+    // if(userProfile) setPreview(userProfile);
   }, []); 
 
   return (
-    <main className="h-screen w-screen bg-primary flex justify-center items-center">
+    <main className={`h-screen ${!dashBoard ? "w-full": "w-3/4"} bg-primary flex justify-center items-center`}>
       <div className="h-4/5 w-3/5 bg-secondary text-text flex flex-col items-center rounded-lg shadow-lg p-8">
         <h1 className="text-4xl font-bold">
           {newUser ? "Hey There," : "Your Profile"}
@@ -129,14 +143,7 @@ const Profile = () => {
           onSubmit={handleCompleteProfile}
           className="w-4/5 relative my-8 py-2 flex flex-col items-center gap-6"
         >
-          {!newUser && (
-            <Link
-              className="absolute top-2 right-4 text-xl cursor-pointer"
-              to="/dashboard"
-            >
-              X
-            </Link>
-          )}
+          {!newUser && ( <button className="absolute top-2 right-4 text-xl cursor-pointer" onClick={handleXbutton} > X </button> )}
 
           {/* Profile Image */}
           <label htmlFor="fileInput" className="relative mt-8">

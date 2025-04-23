@@ -19,3 +19,19 @@ export const Button: React.FC<ButtonProps> = ({children, className = "", ...prop
 export const Line = () => {
   return <div className="h-1/5 w-1 border-2 inline mr-4 ml-4"></div>;
 };
+
+interface LinkProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const QuickLink : React.FC<LinkProps> = ({children, className="", ...props}) => {
+  return (
+    <button 
+    className={`cursor-pointer text-sm border-b-2 border-transparent hover:border-accent transition duration-300 ${className}`}
+    {...props}
+    >
+      {children}
+    </button>
+  )
+}

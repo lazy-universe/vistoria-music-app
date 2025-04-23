@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0F172A;
-  --color-secondary: #2563EB;
-  --color-accent: #E11D48;
-  --color-text: #F9FAFB;
+  --color-primary: #0f172a;
+  --color-primary-light: #16213b;
+  --color-secondary: #2563eb;
+  --color-secondary-dark: #0b2b6f;
+  --color-accent: #e11d48;
+  --color-text: #f9fafb;
 
   --font-space: "Space Grotesk, sans-serif";
   --font-poppins: "Poppins, sans-serif";
@@ -13,3 +15,6 @@
 }
 
 /* * {border: 0.1px solid white } */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

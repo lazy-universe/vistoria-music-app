@@ -1,26 +1,18 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/style";
+import { useImageCompressor } from "../hooks/useImageCompressor";
 
-type profileProps = {
-  dashBoard?: boolean | undefined;
-  closeDashBoard?: () => void;
-}
-
-const Profile = ({dashBoard, closeDashBoard} : profileProps) => {
+const Profile = () => {
   const [newUser, setNewUser] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
-  const [username, setUsername] = useState<string>("music is love");
+  const [username, setUsername] = useState<string>("");
   const [preview, setPreview] = useState<string>("");
   const navigate = useNavigate();
-
-  const handleXbutton = () => {
-    if(closeDashBoard) closeDashBoard();
-    else navigate("/dashboard");
-  }
-
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -28,109 +20,121 @@ const Profile = ({dashBoard, closeDashBoard} : profileProps) => {
       setPreview(URL.createObjectURL(file));
     }
   };
-
+  
+  const { compress } = useImageCompressor(); 
   const handleCompleteProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     const email = localStorage.getItem("email");
-    if(!email){
+    if (!email) {
       setLoading(false);
-      throw new Error ("not a valid user");
+      setError("Not a valid user");
+      return;
     }
-    let avatarUrl = preview; // Default avatar or existing one
+
+    let avatarUrl = preview; // Default preview or existing one
     const redirect = newUser;
 
-    const urlController = new AbortController();
-    const urlTimeoutId = setTimeout(() => {
-      urlController.abort(); // Abort the fetch request
-      setError("Time limit exceeded for storing avatar, try again!");
-      setLoading(false);
-    }, 20000);
-
-    const uploadController = new AbortController();
-    const uploadTimeoutId = setTimeout(() => {
-      uploadController.abort();
-      setError("Time limit exceeded for storing details, try again!");
-      setLoading(false);
-    }, 20000)
-
-    
     try {
       if (image) {
-        // Step 1: Request a signed upload URL from the backend
-        const oldAvatarUrl = localStorage.getItem("avatar") || "";
+        let imageToUpload: File = image;
+
+        try {
+          const compressed = await compress(image, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 800,
+            useWebWorker: true,
+          }, 15000);
+
+          imageToUpload = compressed;
+          const blobUrl = URL.createObjectURL(compressed);
+          setPreview(blobUrl);
+        } catch (compressionError) {
+          console.warn("Compression failed. Proceeding with original image.",compressionError);
+        }
+
         const formData = new FormData();
         formData.append("email", email);
-        formData.append("file", image);
-        formData.append("oldAvatarUrl", oldAvatarUrl); // Pass the old avatar URL if needed
-        const res = await fetch(
-          "http://localhost:5000/api/crud/upload-avatar",
-          {
-            method: "POST",
-            // headers: { "Content-Type": "application/json" },
-            body: formData,
-            signal : urlController.signal,
-          }
-        );
-        clearTimeout(urlTimeoutId);
+        formData.append("file", imageToUpload);
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || data.error || "Failed to generate upload URL");        
-        
-        avatarUrl = `${data.publicUrl}?t=${new Date().getTime()}`; // Busts cache 
+        try {
+          const uploadRes = await axios.post(
+            "http://localhost:5000/api/crud/upload-avatar",
+            formData,
+            { timeout: 20000 }
+          );
+
+          avatarUrl = `${uploadRes.data.publicUrl}?t=${Date.now()}`; // cache busting
+        } catch (uploadError) {
+          if (axios.isAxiosError(uploadError)) {
+            if (uploadError.code === "ECONNABORTED") {
+              setError("Time limit exceeded for avatar upload");
+            } else {
+              setError(
+                uploadError.response?.data?.message || "Avatar upload failed"
+              );
+            }
+          } else {
+            setError("Unknown error during avatar upload");
+          }
+          setLoading(false);
+          return;
+        }
       }
-      
-      // Step 3: Save updated profile info to Firestore (or Supabase DB)
-      const response = await fetch(
+
+      // Save profile info to backend
+      const profileRes = await axios.post(
         "http://localhost:5000/api/auth/complete-profile",
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, username, avatar: avatarUrl }),
-          signal: uploadController.signal,
-        }
+          email,
+          username,
+          avatar: avatarUrl,
+        },
+        { timeout: 20000 }
       );
-      clearTimeout(uploadTimeoutId);
 
-      const responseData = await response.json();
-      if (!response.ok)
-        throw new Error(responseData.message || "Profile update failed");
-
-      // Step 4: Update localStorage
       localStorage.setItem("username", username);
-      localStorage.setItem("profileCompleted", responseData.profileCompleted);
+      localStorage.setItem("profileCompleted", profileRes.data.profileCompleted);
       localStorage.setItem("avatar", avatarUrl);
+      // console.log(avatarUrl);
 
       if (redirect) navigate("/dashboard");
       else setError("Profile Updated Successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Please try again");
+      if (axios.isAxiosError(err)) {
+        if (err.code === "ECONNABORTED") {
+          setError("Time limit exceeded, try again!");
+        } else {
+          setError(err.response?.data?.message || "Profile update failed");
+        }
+      } else {
+        setError("Unknown error occurred");
+      }
     } finally {
       setLoading(false);
-      clearTimeout(urlTimeoutId);
-      clearTimeout(uploadTimeoutId);
     }
   };
 
   useEffect(() => {
-    const profileCompleted = localStorage.getItem("profileCompleted") === "true";
+    const profileCompleted =
+      localStorage.getItem("profileCompleted") === "true";
     if (profileCompleted) setNewUser(false);
 
     const userName = localStorage.getItem("username");
-    if(userName) setUsername(userName);
+    if (userName) setUsername(userName);
+    else setUsername("vistoria");
 
-    const userProfile = localStorage.getItem("avatar");    
+    const userProfile = localStorage.getItem("avatar");
     if (userProfile) setPreview(`${userProfile}?t=${new Date().getTime()}`);
-    else setPreview("/avatar/avatar-1.jpg"); 
-
-    // const userProfile = localStorage.getItem("avatar");    
-    // if(userProfile) setPreview(userProfile);
-  }, []); 
+    else setPreview("/avatar/avatar.jpg");
+  }, []);
 
   return (
-    <main className={`h-screen ${!dashBoard ? "w-full": "w-3/4"} bg-primary flex justify-center items-center`}>
+    <main
+      className={`h-screen w-full bg-primary flex justify-center items-center`}
+    >
       <div className="h-4/5 w-3/5 bg-secondary text-text flex flex-col items-center rounded-lg shadow-lg p-8">
         <h1 className="text-4xl font-bold">
           {newUser ? "Hey There," : "Your Profile"}
@@ -143,7 +147,14 @@ const Profile = ({dashBoard, closeDashBoard} : profileProps) => {
           onSubmit={handleCompleteProfile}
           className="w-4/5 relative my-8 py-2 flex flex-col items-center gap-6"
         >
-          {!newUser && ( <button className="absolute top-2 right-4 text-xl cursor-pointer" onClick={handleXbutton} > X </button> )}
+          {!newUser && (
+            <button
+              className="absolute top-2 right-4 text-xl cursor-pointer"
+              onClick={() => navigate("/dashboard")}
+            >
+              {" "} X {" "}
+            </button>
+          )}
 
           {/* Profile Image */}
           <label htmlFor="fileInput" className="relative mt-8">
@@ -173,11 +184,7 @@ const Profile = ({dashBoard, closeDashBoard} : profileProps) => {
 
           {/* Submit Button */}
           <Button disabled={loading}>
-            {loading
-              ? "Saving..."
-              : newUser
-              ? "Complete Profile"
-              : "Update Profile"}
+            {loading ? "Saving..." : newUser ? "Complete" : "Update"}
           </Button>
 
           {/* Error Display */}

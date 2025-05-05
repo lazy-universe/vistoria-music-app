@@ -54,11 +54,11 @@ const DisplaySearch = () => {
   };
 
   return (
-    <main className="flex flex-col items-center w-full h-9/10  py-6 px-4 transition-all duration-500">
-      <div className="flex flex-col items-center w-full sm:w-4/5 bg-primary-light py-4 h-full rounded-lg shadow-md relative">
+    <main className="flex flex-col items-center justify-center w-full h-full bg-primary transition-all duration-500">
+      <div className="flex flex-col items-center w-2/3 py-4 h-9/10 relative">
         {/* H1 with transition instead of removing */}
         <h1
-          className={`text-4xl text-center mb-16 text-white transition-all duration-700 transform ${
+          className={`text-3xl text-center mb-16 text-white transition-all duration-700 transform ${
             searchTriggered
               ? "opacity-0 -translate-y-28 pointer-events-none"
               : "opacity-100 translate-y-0"
@@ -71,7 +71,7 @@ const DisplaySearch = () => {
         {/* Search Form that shifts up on search */}
         <form
           onSubmit={handleSearch}
-          className={`w-2/4 sm:w-3/5 md:w-2/5 mb-4 focus-within:w-3/5 border-2 hover:shadow-lg focus-within:shadow-accent border-accent rounded-full p-2 px-4 flex items-center gap-4 bg-white/10 backdrop-blur-md shadow-md transition-all duration-700 transform ${
+          className={`w-1/2 mb-4 focus-within:w-3/5 border-2 hover:shadow-lg focus-within:shadow-accent border-accent rounded-full p-2 px-4 flex items-center gap-4 bg-white/10 backdrop-blur-md shadow-md transition-all duration-700 transform ${
             searchTriggered ? "-mt-32" : "mb-4"
           }`}
         >
@@ -92,7 +92,7 @@ const DisplaySearch = () => {
 
         {/* Search Results */}
         <div
-          className={`w-full h-full scrollbar-hide overflow-y-scroll flex flex-col items-center gap-4 transition-all duration-700 ease-in-out ${
+          className={`w-full h-full scrollbar-hide overflow-y-scroll bg-primary-light flex flex-col items-center gap-4 transition-all duration-700 ease-in-out ${
             searchTriggered
               ? "opacity-100 translate-y-0"
               : "opacity-0 translate-y--100"

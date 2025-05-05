@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios"
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../components/style";
@@ -14,33 +15,19 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     const endPoint = isLogin ? "login" : "register";
 
-    const authController = new AbortController();
-    const authTimeoutId = setTimeout(() => {
-      authController.abort(); // Abort the fetch request
-      setError("Time limit exceeded, try again!");
-      setLoading(false);
-    }, 10000);
-
     try {
-      // console.log(isLogin, endPoint, email, password);
-      const response = await fetch(
+      const response = await axios.post(
         `http://localhost:5000/api/auth/${endPoint}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-          signal: authController.signal,
-        }
+        { email, password },
+        { timeout: 10000 } // Auto-abort if it takes longer than 10 seconds
       );
-
-      clearTimeout(authTimeoutId); // Clear the timeout if the request completes in time
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Authentication Failed");
-
+      
+      const data = response.data;
+      // if (!data) throw new Error(data.message || "Authentication Failed");
       // console.log("Response Status:", response.status);
       // console.log("Response Data:", data.message);
       // console.log("Token", data.token);
@@ -56,12 +43,20 @@ const Auth = () => {
 
       navigate("/dashboard"); // Redirect to dashboard on successful login
     } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+      if (axios.isAxiosError(err)) {
+        if (err.code === "ECONNABORTED") {
+          setError("Time limit exceeded, try again!");
+        } else {
+          setError(err.response?.data?.message || "Authentication failed");
+        }
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
-      clearInterval(authTimeoutId);
     }
   };
+
   return (
     <main className="relative h-dvh bg-primary flex flex-col items-center justify-around text-text z-10 gap-12">
       <header className="hero text-center mt-20">

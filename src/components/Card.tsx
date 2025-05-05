@@ -22,7 +22,7 @@ interface TrackProps {
 
 export const TrackCard: React.FC<TrackProps> = ({ name, artist, albumImage, previewUrl }) => {
   return (
-    <div className={` ${previewUrl ? "cursor-pointer" : "cursor-default" }bg-white/10 p-4 rounded-lg shadow-md flex items-center gap-4 w-full max-w-md backdrop-blur-md`}>
+    <div className={` ${previewUrl ? "cursor-pointer" : "cursor-default" } bg-accent p-4 rounded-lg shadow-md flex items-center gap-4 w-full max-w-md backdrop-blur-md`}>
       <img src={albumImage} alt={name} className="w-16 h-16 rounded-lg object-cover" />
       <div className="flex flex-col flex-grow">
         <h2 className="text-white font-semibold">{name}</h2>

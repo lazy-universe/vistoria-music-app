@@ -19,6 +19,18 @@
   text-align: center;
 }
 
+.connected {
+  color: black;
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
+.disconnected {
+  color: red;
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
 /* Messages Area */
 .chatMessages {
   flex: 1;

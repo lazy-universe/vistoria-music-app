@@ -17,12 +17,17 @@ interface TrackProps {
   artist: string;
   albumImage: string;
   previewUrl?: string;
-  onClick?: () => void;
+  onClick: () => void;
 }
 
-export const TrackCard: React.FC<TrackProps> = ({ name, artist, albumImage, previewUrl }) => {
+export const TrackCard: React.FC<TrackProps> = ({ name, artist, albumImage, previewUrl, onClick}) => {
   return (
-    <div className={` ${previewUrl ? "cursor-pointer" : "cursor-default" } bg-accent p-4 rounded-lg shadow-md flex items-center gap-4 w-full max-w-md backdrop-blur-md`}>
+    <div className={` ${!previewUrl ? "cursor-pointer" : "cursor-default" } bg-accent p-4 rounded-lg shadow-md flex items-center gap-4 w-full max-w-md backdrop-blur-md`}
+      onClick={(e) => {
+        e.stopPropagation(); // Prevent event bubbling to parent elements
+        onClick();
+      }}
+    >
       <img src={albumImage} alt={name} className="w-16 h-16 rounded-lg object-cover" />
       <div className="flex flex-col flex-grow">
         <h2 className="text-white font-semibold">{name}</h2>

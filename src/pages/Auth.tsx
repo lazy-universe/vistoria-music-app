@@ -3,8 +3,12 @@ import axios from "axios"
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../components/style";
+// import { useAuthStore } from "../utils/useAuthStore";
 
 const Auth = () => {
+  // const login = useAuthStore((state) => state.login);
+  // let isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -34,6 +38,14 @@ const Auth = () => {
       // console.log("complete-profile:", data.profileCompleted);
       // console.log("username", data.username);
       // console.log("avatar", data.avatar);
+
+      // login({
+      //   avatar: data.avatar,
+      //   username: data.username,
+      //   email: email,
+      //   token: data.token,
+      // });
+      // isAuthenticated(data.profileCompleted == "true");
 
       localStorage.setItem("email", email);  // neccesity ?
       localStorage.setItem("token", data.token);

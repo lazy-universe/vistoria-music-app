@@ -23,7 +23,7 @@ function Header() {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
     if (confirmLogout) {
       localStorage.clear();
-      navigate("/auth");
+      navigate("/login");
     }
   };
 

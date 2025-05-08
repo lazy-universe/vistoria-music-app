@@ -10,6 +10,9 @@ interface SpotifyTrack {
     images: { url: string }[];
   };
   preview_url: string | null;
+  external_urls: {
+    spotify: string;
+  };
 }
 
 
@@ -20,14 +23,24 @@ const DisplaySearch = () => {
   const [loading, setLoading] = useState(false)
 
   const handleTrackClick = (track: SpotifyTrack) => {
+    console.log('Track clicked:', track);
     const selectedTrack = {
       name: track.name,
       preview_url: track.preview_url,
       artist: track.artists[0].name,
       image: track.album.images[0]?.url,
+      external_url: track.external_urls.spotify,
     };
-  
-    localStorage.setItem("activeTrack", JSON.stringify(selectedTrack));
+
+    const activeTrack = JSON.stringify(selectedTrack);
+    localStorage.setItem("activeTrack", activeTrack);
+    // localStorage.setItem("activeTrack", JSON.stringify(selectedTrack));
+
+    // Dispatch a custom event to notify the Player component
+    window.dispatchEvent(new Event('trackSelected'));
+
+    // const stored = localStorage.getItem("activeTrack");
+    // console.log('Stored track:', stored);
   };
   
 

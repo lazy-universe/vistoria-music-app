@@ -1,22 +1,21 @@
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
-import { io } from "socket.io-client";
+import { getSocket, initSocket } from "../utils/useSocket";
 import styles from "./Chat.module.css";
 
 interface Message {
   id: string;
   text: string;
   sender: string;
-  // senderName: string;
+  senderName: string;
   timestamp: Date;
 }
-
-const socket = io("http://localhost:5000"); // Backend URL
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState<string | null>(null); // Store unique ID
   const [userName, setUsername] = useState<string>(""); // Store username
+  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -28,7 +27,23 @@ const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
+    // Initialize socket when component mounts
+    const socket = initSocket();
+
+    // Handle connection events
+    socket.on("connect", () => {
+      console.log("Socket connected");
+      setIsConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      setIsConnected(false);
+    });
+
+    // Set up event listeners
     socket.on("setUserId", (id: string) => {
+      // console.log("User ID set:", id);
       setUserId(id); // Set the unique socket ID as userId
     });
 
@@ -43,6 +58,8 @@ const Chat = () => {
     setUsername(username || "Guest");
 
     return () => {
+      socket.off("connect");
+      socket.off("disconnect");
       socket.off("setUserId");
       socket.off("receiveMessage");
     };
@@ -56,13 +73,20 @@ const Chat = () => {
   };
 
   const sendMessage = () => {
+    const socket = getSocket(); // Get the socket instance
+
+    if (!socket.connected) {
+      console.error("Socket is not connected");
+      return;
+    }
+
     if (message.trim() && userId) {
       // Ensure userId is available
       const newMessage: Message = {
         id: Date.now().toString(),
         text: message.trim(),
         sender: userId, // Use the unique socket ID
-        // senderName: "You",
+        senderName: userName,
         timestamp: new Date(),
       };
       socket.emit("sendMessage", newMessage);
@@ -72,7 +96,7 @@ const Chat = () => {
 
   return (
     <div className={styles.chatContainer}>
-      <h2 className={styles.chatHeader}>Chat App</h2>
+      <h2 className={styles.chatHeader}>Chat App <span className={isConnected ? styles.connected : styles.disconnected}>{isConnected ? "Connected" : "Disconnected"}</span></h2>
       <div className={styles.messagesContainer}>
         {messages.map((msg) => (
           <div
@@ -83,7 +107,7 @@ const Chat = () => {
           >
             <div className={styles.message}>
               <span className={styles.senderName}>
-                {userName}
+                {msg.sender === userId ? "You" : msg.senderName}
               </span>
               <p className={styles.messageText}>{msg.text}</p>
               <span className={styles.timestamp}>

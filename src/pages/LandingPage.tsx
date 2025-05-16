@@ -39,7 +39,7 @@ function LandingPage() {
               </li>
             ))}
           </ul>
-          <Button onClick={() => navigate("/auth")}> Get Started </Button>
+          <Button onClick={() => navigate("/login")}> Get Started </Button>
         </div>
       </section>
     </main>

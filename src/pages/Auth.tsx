@@ -8,18 +8,20 @@ import { useAuthStore } from "../utils/useAuthStore";
 const Auth = () => {
   const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>("App is in development phase, so no new users are allowed to sign up, if you are friends with developer kindly contact him!");
   const [password, setPassword] = useState<string>("");
   const [authMethod, setAuthMethod] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const endPoint = authMethod ? "login" : "register";
+    // const endPoint = authMethod ? "login" : "register";
+    const endPoint = "login";
 
     try {
       const response = await axios.post(
@@ -112,7 +114,7 @@ const Auth = () => {
                 Forgot Password?
               </p>
               <p
-                onClick={(prev) => setAuthMethod(!prev)}
+                onClick={() => setAuthMethod((prev) => !prev)}
                 className="cursor-pointer text-right hover:underline"
               >
                 {authMethod ? "New User? Sign Up" : "Back to Login"}

@@ -1,5 +1,5 @@
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
-import { getSocket, initSocket } from "../utils/useSocket";
+import { getSocket } from "../utils/useSocket";
 import styles from "./Chat.module.css";
 import { useAuthStore } from "../utils/useAuthStore";
 
@@ -19,18 +19,18 @@ const Chat = () => {
   const [userName, setUsername] = useState<string>(""); // Store username
   const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
+  
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+  
   useEffect(() => {
     // Initialize socket when component mounts
-    const socket = initSocket();
+    const socket = getSocket(); 
 
     // Handle connection events
     socket.on("connect", () => {

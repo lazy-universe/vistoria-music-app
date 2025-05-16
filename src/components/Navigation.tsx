@@ -1,6 +1,5 @@
 import { QuickLink } from "./style";
 import { useNavigate } from "react-router-dom";
-import { initSocket } from "../utils/useSocket";
 import { useAuthStore } from "../utils/useAuthStore";
 
 const Navigation = () => {
@@ -17,7 +16,7 @@ const Navigation = () => {
         </QuickLink>
         <QuickLink onClick={() => navigate("/profile")}> Profile </QuickLink>
         <QuickLink onClick={() => navigate("/search")}> Search </QuickLink>
-        <QuickLink onClick={() => {initSocket(); navigate("/chat")}}> Chat </QuickLink>
+        <QuickLink onClick={() => navigate("/chat")}> Chat </QuickLink>
       </div>
     </>
   );

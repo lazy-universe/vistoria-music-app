@@ -10,7 +10,7 @@ interface SpotifyTrack {
   album: {
     images: { url: string }[];
   };
-  preview_url: string | null;
+  preview_url: string | undefined;
   external_urls: {
     spotify: string;
   };

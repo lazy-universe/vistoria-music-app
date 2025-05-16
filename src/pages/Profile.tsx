@@ -2,9 +2,12 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/style";
-import { useImageCompressor } from "../hooks/useImageCompressor";
+import { useImageCompressor } from "../utils/useImageCompressor";
+import { useAuthStore } from "../utils/useAuthStore";
 
 const Profile = () => {
+  const login = useAuthStore((state) => state.login);
+  const user = useAuthStore((state) => state.user);
   const [newUser, setNewUser] = useState(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -27,7 +30,8 @@ const Profile = () => {
     setLoading(true);
     setError("");
 
-    const email = localStorage.getItem("email");
+    // const email = localStorage.getItem("email");
+    const email = user?.email;
     if (!email) {
       setLoading(false);
       setError("Not a valid user");
@@ -95,10 +99,18 @@ const Profile = () => {
         { timeout: 20000 }
       );
 
-      localStorage.setItem("username", username);
-      localStorage.setItem("profileCompleted", profileRes.data.profileCompleted);
-      localStorage.setItem("avatar", avatarUrl);
+      // localStorage.setItem("username", username);
+      // localStorage.setItem("profileCompleted", profileRes.data.profileCompleted);
+      // localStorage.setItem("avatar", avatarUrl);
       // console.log(avatarUrl);
+
+      login({
+        avatar: avatarUrl,
+        username: username,
+        email: email,
+        token: user?.token || "",
+        profileCompleted: profileRes.data.profileCompleted,
+      });
 
       if (redirect) navigate("/dashboard");
       else setError("Profile Updated Successfully");
@@ -118,18 +130,20 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    const profileCompleted =
-      localStorage.getItem("profileCompleted") === "true";
+    // const profileCompleted = localStorage.getItem("profileCompleted") === "true";
+    const profileCompleted = user?.profileCompleted;
     if (profileCompleted) setNewUser(false);
 
-    const userName = localStorage.getItem("username");
+    // const userName = localStorage.getItem("username");
+    const userName = user?.username;
     if (userName) setUsername(userName);
     else setUsername("vistoria");
 
-    const userProfile = localStorage.getItem("avatar");
+    // const userProfile = localStorage.getItem("avatar");
+    const userProfile = user?.avatar;
     if (userProfile) setPreview(`${userProfile}?t=${new Date().getTime()}`);
     else setPreview("/avatar/avatar.jpg");
-  }, []);
+  }, [user]);
 
   return (
     <main

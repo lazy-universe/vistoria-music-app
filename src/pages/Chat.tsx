@@ -1,6 +1,7 @@
 import { useState, useEffect, KeyboardEvent, useRef } from "react";
 import { getSocket, initSocket } from "../utils/useSocket";
 import styles from "./Chat.module.css";
+import { useAuthStore } from "../utils/useAuthStore";
 
 interface Message {
   id: string;
@@ -11,6 +12,7 @@ interface Message {
 }
 
 const Chat = () => {
+  const user = useAuthStore((state) => state.user);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState<string | null>(null); // Store unique ID
@@ -54,7 +56,8 @@ const Chat = () => {
       ]);
     });
 
-    const username = localStorage.getItem("username");
+    // const username = localStorage.getItem("username");
+    const username = user?.username;
     setUsername(username || "Guest");
 
     return () => {
@@ -63,7 +66,7 @@ const Chat = () => {
       socket.off("setUserId");
       socket.off("receiveMessage");
     };
-  }, []);
+  }, [user]);
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

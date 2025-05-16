@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";;
 import { useNavigate } from "react-router-dom";
 import { QuickLink } from "../components/style";
+import { useAuthStore } from "../utils/useAuthStore";
 
 function Header() {
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const [greeting, setGreeting] = useState("Hey there,");
   const [username, setUsername] = useState("");
   const [avatar, setAvatar] = useState<string>("");
@@ -22,21 +25,24 @@ function Header() {
   const logOutWarning = () => {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
     if (confirmLogout) {
-      localStorage.clear();
+      // localStorage.clear();
+      logout();
       navigate("/login");
     }
   };
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
+    // const storedUsername = localStorage.getItem("username");
+    const storedUsername = user?.username;
     if (storedUsername) setUsername(storedUsername);
 
-    const storedAvatar = localStorage.getItem("avatar");
+    // const storedAvatar = localStorage.getItem("avatar");
+    const storedAvatar = user?.avatar;
     if (storedAvatar) setAvatar(storedAvatar);
 
     const currTime = new Date().getHours();
     handleGreeting(currTime);
-  }, []);
+  }, [user]);
 
   return (
     <>

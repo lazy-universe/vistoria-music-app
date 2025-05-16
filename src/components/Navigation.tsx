@@ -1,17 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import { QuickLink } from "./style";
-import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { initSocket } from "../utils/useSocket";
+import { useAuthStore } from "../utils/useAuthStore";
 
 const Navigation = () => {
   const navigate = useNavigate();
-  const [profileCompleted, setProfileCompleted] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const fetchProfileCompleted =
-      localStorage.getItem("profileCompleted") == "true";
-    setProfileCompleted(fetchProfileCompleted);
-  }, []);
+  const profileCompleted = useAuthStore((state) => state.user?.profileCompleted);
 
   return (
     <>

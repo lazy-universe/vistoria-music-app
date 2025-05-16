@@ -1,17 +1,12 @@
-import {useState , useEffect} from "react";
 import { Outlet } from "react-router-dom";
+import { useAuthStore } from "../utils/useAuthStore";
 
 import Player from "../components/Player";
 import Navigation from "../components/Navigation";
 
 
 const Layout = () => {
-  const [profileCompleted, setProfileCompleted] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const fetchProfileCompleted = localStorage.getItem("profileCompleted") == "true";
-    setProfileCompleted(fetchProfileCompleted);
-  }, []);
+  const profileCompleted = useAuthStore((state) => state.user?.profileCompleted);
 
   return (
     <>

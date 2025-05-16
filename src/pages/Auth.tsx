@@ -1,18 +1,16 @@
+import axios from "axios";
 import { useState } from "react";
-import axios from "axios"
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../components/style";
-// import { useAuthStore } from "../utils/useAuthStore";
+import { useAuthStore } from "../utils/useAuthStore";
 
 const Auth = () => {
-  // const login = useAuthStore((state) => state.login);
-  // let isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
+  const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [authMethod, setAuthMethod] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -21,7 +19,7 @@ const Auth = () => {
     setLoading(true);
     setError("");
 
-    const endPoint = isLogin ? "login" : "register";
+    const endPoint = authMethod ? "login" : "register";
 
     try {
       const response = await axios.post(
@@ -39,21 +37,21 @@ const Auth = () => {
       // console.log("username", data.username);
       // console.log("avatar", data.avatar);
 
-      // login({
-      //   avatar: data.avatar,
-      //   username: data.username,
-      //   email: email,
-      //   token: data.token,
-      // });
-      // isAuthenticated(data.profileCompleted == "true");
+      login({
+        avatar: data.avatar? data.avatar : "/avatar/avatar.jpg",
+        username: data.username? data.username : "Vistoria",
+        email: email,
+        token: data.token,
+        profileCompleted: data.profileCompleted,
+      });
 
-      localStorage.setItem("email", email);  // neccesity ?
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("profileCompleted", data.profileCompleted); // Store profile completion status      
-      if(data.username) localStorage.setItem("username", data.username);
-      if(data.avatar) localStorage.setItem("avatar", data.avatar);
+      // localStorage.setItem("email", email);  // neccesity ?
+      // localStorage.setItem("token", data.token);
+      // localStorage.setItem("profileCompleted", data.profileCompleted); // Store profile completion status      
+      // if(data.username) localStorage.setItem("username", data.username);
+      // if(data.avatar) localStorage.setItem("avatar", data.avatar);
 
-      navigate("/dashboard"); // Redirect to dashboard on successful login
+      navigate("/dashboard");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.code === "ECONNABORTED") {
@@ -87,7 +85,7 @@ const Auth = () => {
         </div>
         <div className="right-login h-4/5 w-2/5 flex flex-col items-center justify-center gap-12">
           <h1 className="text-center text-3xl bold font-poppins">
-            {isLogin ? "Login Credentials" : "Sign Up Credentials"}
+            {authMethod ? "Login Credentials" : "Sign Up Credentials"}
           </h1>
           <form
             onSubmit={handleSubmit}
@@ -114,10 +112,10 @@ const Auth = () => {
                 Forgot Password?
               </p>
               <p
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={(prev) => setAuthMethod(!prev)}
                 className="cursor-pointer text-right hover:underline"
               >
-                {isLogin ? "New User? Sign Up" : "Back to Login"}
+                {authMethod ? "New User? Sign Up" : "Back to Login"}
               </p>
             </div>
             <div className="flex flex-col gap-2">

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { TrackCard } from "../components/Card";
+import { useAuthStore } from "../utils/useAuthStore";
 
 interface SpotifyTrack {
   id: string;
@@ -17,6 +18,7 @@ interface SpotifyTrack {
 
 
 const DisplaySearch = () => {
+  const setPlayer = useAuthStore((state) => state.setPlayer);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
   const [searchTriggered, setSearchTriggered] = useState(false);
@@ -32,8 +34,9 @@ const DisplaySearch = () => {
       external_url: track.external_urls.spotify,
     };
 
-    const activeTrack = JSON.stringify(selectedTrack);
-    localStorage.setItem("activeTrack", activeTrack);
+    setPlayer(selectedTrack);
+    // const activeTrack = JSON.stringify(selectedTrack);
+    // localStorage.setItem("activeTrack", activeTrack);
     // localStorage.setItem("activeTrack", JSON.stringify(selectedTrack));
 
     // Dispatch a custom event to notify the Player component

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
+import { useAuthStore } from "../utils/useAuthStore";
 
 interface Track {
   name: string;
-  preview_url: string;
+  preview_url: string | undefined;
   artist: string;
   image: string;
   external_url: string;
 }
 
 const Player = () => {
+  const player = useAuthStore((state) => state.player);
   const [track, setTrack] = useState<Track | null>(null);
 
   useEffect(() => {
@@ -19,20 +21,21 @@ const Player = () => {
     // }
 
     // Optional: Listen for manual updates in localStorage (like across tabs)
-    const handleTrackSelected = () => {
-      const updated = localStorage.getItem("activeTrack");
-      if (updated) setTrack(JSON.parse(updated));
+    const handleTrackSelected = () => {      
+      // const updated = localStorage.getItem("activeTrack");
+      const updated = player;
+      if (updated) setTrack(updated);
     };
 
     window.addEventListener("trackSelected", handleTrackSelected);
     return () =>
       window.removeEventListener("trackSelected", handleTrackSelected);
-  }, []);
+  }, [player]);
 
   if (!track)
     return (
       <div className="h-2/3 m-2 w-full border-accent border-2 rounded-2xl flex text-center items-center justify-center">
-        No song is playing, <br /> play an song to display here!
+        No song is playing, <br /> play a song to display here!
       </div>
     );
 

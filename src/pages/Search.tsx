@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { TrackCard } from "../components/Card";
 import { useAuthStore } from "../utils/useAuthStore";
+import { BACKEND_URL } from "../utils/useEnv";
 
 interface SpotifyTrack {
   id: string;
@@ -15,7 +16,6 @@ interface SpotifyTrack {
     spotify: string;
   };
 }
-
 
 const DisplaySearch = () => {
   const setPlayer = useAuthStore((state) => state.setPlayer);
@@ -54,7 +54,7 @@ const DisplaySearch = () => {
 
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/spotify/search",
+        `${BACKEND_URL}/api/spotify/search`,
         {
           params: { q: searchQuery },
         }

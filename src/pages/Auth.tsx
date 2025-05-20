@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Button } from "../components/style";
 import { useAuthStore } from "../utils/useAuthStore";
+import { BACKEND_URL } from "../utils/useEnv";
 
 const Auth = () => {
   const login = useAuthStore((state) => state.login);
@@ -25,7 +26,7 @@ const Auth = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/auth/${endPoint}`,
+        `${BACKEND_URL}/api/auth/${endPoint}`,
         { email, password },
         { timeout: 10000 } // Auto-abort if it takes longer than 10 seconds
       );

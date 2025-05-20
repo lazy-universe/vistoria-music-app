@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/style";
 import { useImageCompressor } from "../utils/useImageCompressor";
 import { useAuthStore } from "../utils/useAuthStore";
+import { BACKEND_URL } from "../utils/useEnv";
 
 const Profile = () => {
   const login = useAuthStore((state) => state.login);
@@ -65,7 +66,7 @@ const Profile = () => {
 
         try {
           const uploadRes = await axios.post(
-            "http://localhost:5000/api/crud/upload-avatar",
+            `${BACKEND_URL}/api/crud/upload-avatar`,
             formData,
             { timeout: 20000 }
           );
@@ -90,7 +91,7 @@ const Profile = () => {
 
       // Save profile info to backend
       const profileRes = await axios.post(
-        "http://localhost:5000/api/auth/complete-profile",
+        `${BACKEND_URL}/api/auth/complete-profile`,
         {
           email,
           username,

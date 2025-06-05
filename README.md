@@ -28,17 +28,17 @@ Vistoria is a modern music application designed to deliver an immersive audio ex
 
 ## 🚀 Installation
 1. Clone the repository 
-```bash
-git clone https://github.com/yourusername/vistoria-client.git
-```
+  ```bash
+  git clone https://github.com/lazy-universe/vistoria-jam.git
+  ```
 2. Install dependencies
-```bash
-npm install
-```
+  ```bash
+  npm install
+  ```
 3. Start the development server
-```bash
-npm start
-```
+  ```bash
+  npm start
+  ```
 
 ## 💪 Challenges & Learning
 - Implemented complex audio processing features

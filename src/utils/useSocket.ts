@@ -1,10 +1,11 @@
 import { io, Socket } from "socket.io-client";
+import { BACKEND_URL } from "./useEnv";
 
 let socket: Socket | null = null;
 
 const initSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:5000", {
+    socket = io( `${BACKEND_URL}`, {
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
